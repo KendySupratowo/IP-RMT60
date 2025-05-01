@@ -14,27 +14,31 @@ export default function FavoritePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in
+    // Cek apakah user sudah login
     const token = localStorage.getItem("access_token");
     if (!token) {
       navigate("/login");
       return;
     }
 
-    // Fetch user's favorite devices
+    // Ambil daftar HP favorit user
     const fetchFavorites = async () => {
       try {
         setLoading(true);
         const response = await axios.get("http://localhost:3000/favorites", {
           headers: {
-            Authorization: `${token}`,
+            access_token: token, // Sesuaikan dengan header yang diharapkan middleware
           },
         });
 
-        setFavorites(response.data);
+        // Pastikan response.data adalah array
+        const favoriteDevices = Array.isArray(response.data)
+          ? response.data
+          : [];
+        setFavorites(favoriteDevices);
         setLoading(false);
       } catch (err) {
-        setError("Gagal mengambil data favorit");
+        setError(err.response?.data?.message || "Gagal mengambil data favorit");
         setLoading(false);
         console.error("Error fetching favorites:", err);
       }
@@ -45,7 +49,9 @@ export default function FavoritePage() {
 
   // Handler untuk klik tombol View Details
   const handleCardClick = (phoneId) => {
-    navigate(`/devices/${phoneId}`);
+    if (phoneId) {
+      navigate(`/devices/${phoneId}`);
+    }
   };
 
   return (
@@ -68,14 +74,19 @@ export default function FavoritePage() {
           </div>
         ) : (
           <div className="row">
-            {favorites.map((favorite) => (
-              <div className="col-md-3 col-sm-6 mb-4" key={favorite.id}>
+            {favorites.map((favorite, index) => (
+              <div
+                className="col-md-3 col-sm-6 mb-4"
+                key={favorite.id || index}
+              >
                 <Card
-                  title={favorite.XiaomiDevice.device_name}
-                  imageUrl={favorite.XiaomiDevice.device_image}
+                  title={favorite.device_name || "Nama Tidak Tersedia"}
+                  imageUrl={
+                    favorite.device_image || "https://via.placeholder.com/150"
+                  }
                   isFeatured={false}
-                  price={favorite.XiaomiDevice.price}
-                  onClick={() => handleCardClick(favorite.XiaomiDevice.id)}
+                  price={favorite.price || 0}
+                  onClick={() => handleCardClick(favorite.id)}
                 />
               </div>
             ))}

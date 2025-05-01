@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 
 export default function DetailPage() {
   const { id } = useParams();
@@ -44,7 +45,7 @@ export default function DetailPage() {
             );
 
             const isInFavorites = favoriteResponse.data.some(
-              (favorite) => favorite.XiaomiDevice.id === Number(id)
+              (favorite) => favorite.id === Number(id)
             );
             setIsFavorite(isInFavorites);
           } catch (error) {
@@ -266,35 +267,7 @@ export default function DetailPage() {
       />
 
       {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div className="container">
-          <a className="navbar-brand" href="#">
-            Xiaomi <span className="text-info">Phones</span>
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav me-auto">
-              <li className="nav-item">
-                <a className="nav-link" href="/">
-                  Beranda
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link active" href="#">
-                  Detail HP
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Content */}
       <div className="container mt-4">
