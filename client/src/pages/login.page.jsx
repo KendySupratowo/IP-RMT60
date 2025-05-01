@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function LoginPage() {
@@ -43,6 +43,36 @@ export default function LoginPage() {
       }
     }
   };
+
+  async function handleCredentialResponse(response) {
+    try {
+      console.log("Encoded JWT ID token: " + response.credential);
+      const { data } = await axios.post("http://localhost:3000/login/google", {
+        googleToken: response.credential,
+      });
+      localStorage.setItem("access_token", data.access_token);
+      setSuccess("Login Google berhasil! Mengalihkan...");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } catch (err) {
+      setError(
+        err.response?.data.message || "Login Google gagal. Silakan coba lagi."
+      );
+    }
+  }
+
+  useEffect(() => {
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+    });
+    window.google.accounts.id.renderButton(
+      document.getElementById("buttonDiv"),
+      { theme: "outline", size: "large" } // customization attributes
+    );
+    window.google.accounts.id.prompt(); // also display the One Tap dialog
+  }, []); // Empty dependency array to run only once on mount
 
   return (
     <>
@@ -89,6 +119,10 @@ export default function LoginPage() {
             Login
           </button>
         </form>
+        <div
+          className="d-flex justify-content-center mt-3"
+          id="buttonDiv"
+        ></div>
         <div className="register-text">
           Don't have an account yet? <Link to="/register">Register</Link>
         </div>

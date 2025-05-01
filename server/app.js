@@ -27,6 +27,7 @@ app.get("/public/devices/:id", PubController.getDeviceById);
 // Route untuk user (login & register)
 app.post("/register", UserController.register);
 app.post("/login", UserController.login);
+app.post("/login/google", UserController.googleLogin);
 
 // Middleware authentication untuk semua rute dibawah ini
 app.use(authentication);
