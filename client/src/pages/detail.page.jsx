@@ -22,7 +22,7 @@ export default function DetailPage() {
         if (token) {
           setIsAuthenticated(true);
 
-          // Jika terotentikasi, ambil data lengkap
+          // Ambil data device
           const response = await axios.get(
             `http://localhost:3000/public/devices/${id}`,
             {
@@ -76,7 +76,6 @@ export default function DetailPage() {
 
   const handleToggleFavorite = async () => {
     if (!isAuthenticated) {
-      // Redirect ke halaman login jika belum login
       navigate("/login");
       return;
     }
@@ -107,6 +106,7 @@ export default function DetailPage() {
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
+      setError("Gagal memperbarui status favorit");
     }
   };
 
@@ -143,24 +143,24 @@ export default function DetailPage() {
               --dark-bg: #121212;
               --card-bg: #1e1e1e;
             }
-            
+
             body {
               background-color: var(--dark-bg);
               color: #fff;
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
-            
+
             .navbar {
               background-color: var(--primary-color);
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             }
-            
+
             .navbar-brand {
               font-weight: 700;
               font-size: 1.8rem;
               text-transform: uppercase;
             }
-            
+
             .detail-image-container {
               background-color: var(--card-bg);
               border-radius: 15px;
@@ -168,27 +168,27 @@ export default function DetailPage() {
               box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
               margin-bottom: 20px;
             }
-            
+
             .device-image {
               max-height: 400px;
               object-fit: contain;
               width: 100%;
             }
-            
+
             .device-title {
               font-size: 2.5rem;
               font-weight: 700;
               margin-bottom: 10px;
               color: #fff;
             }
-            
+
             .device-price {
               font-size: 1.8rem;
               font-weight: 600;
               color: var(--secondary-color);
               margin-bottom: 20px;
             }
-            
+
             .spec-card {
               background-color: var(--card-bg);
               border-radius: 15px;
@@ -196,7 +196,7 @@ export default function DetailPage() {
               margin-bottom: 20px;
               box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             }
-            
+
             .spec-title {
               font-size: 1.2rem;
               font-weight: 600;
@@ -205,13 +205,13 @@ export default function DetailPage() {
               border-left: 3px solid var(--accent-color);
               padding-left: 10px;
             }
-            
+
             .spec-value {
               font-size: 1rem;
               margin-bottom: 15px;
               padding-left: 13px;
             }
-            
+
             .btn-favorite {
               background-color: var(--accent-color);
               color: #fff;
@@ -222,16 +222,16 @@ export default function DetailPage() {
               margin-right: 10px;
               transition: all 0.3s ease;
             }
-            
+
             .btn-favorite:hover {
               transform: translateY(-3px);
               box-shadow: 0 5px 15px rgba(247, 37, 133, 0.4);
             }
-            
+
             .btn-favorite.active {
               background-color: #ff0060;
             }
-            
+
             .btn-back {
               background-color: var(--card-bg);
               color: #fff;
@@ -241,19 +241,19 @@ export default function DetailPage() {
               font-weight: 600;
               transition: all 0.3s ease;
             }
-            
+
             .btn-back:hover {
               background-color: rgba(255, 255, 255, 0.1);
               transform: translateY(-3px);
             }
-            
+
             .loading-spinner {
               display: flex;
               justify-content: center;
               align-items: center;
               min-height: 400px;
             }
-            
+
             .error-message {
               background-color: var(--accent-color);
               color: white;

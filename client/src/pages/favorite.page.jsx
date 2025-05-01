@@ -27,7 +27,7 @@ export default function FavoritePage() {
         setLoading(true);
         const response = await axios.get("http://localhost:3000/favorites", {
           headers: {
-            access_token: token, // Sesuaikan dengan header yang diharapkan middleware
+            access_token: token,
           },
         });
 

@@ -1,4 +1,12 @@
+import { useNavigate } from "react-router";
+
 export default function WelcomeContent() {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/");
+  };
+
   return (
     <div className="welcome-content">
       <h1>
@@ -22,7 +30,9 @@ export default function WelcomeContent() {
             placeholder="Saya ingin HP gaming dan baterai tahan lama"
           ></textarea>
         </div>
-        <button className="btn btn-primary w-100">Bantu carikan..</button>
+        <button className="btn btn-primary w-100" onClick={handleClick}>
+          Bantu carikan..
+        </button>
       </div>
     </div>
   );

@@ -40,6 +40,11 @@ export default function Navbar() {
                 My Favorite
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/landing-page">
+                Ask My Phones AI
+              </Link>
+            </li>
           </ul>
           <div className="d-flex">
             {isLoggedIn ? (

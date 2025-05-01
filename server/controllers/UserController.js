@@ -26,7 +26,13 @@ class UserController {
         });
       }
 
-      const token = createToken(payload);
+      const tokenPayload = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      };
+
+      const token = createToken(tokenPayload);
       res.status(200).json({
         access_token: token,
         id: user.id,
@@ -35,6 +41,7 @@ class UserController {
       });
     } catch (error) {
       console.log(error);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -80,13 +87,13 @@ class UserController {
       });
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" }); // Changed to 404 for clarity
+        return res.status(404).json({ message: "User not found" });
       }
 
       const isPasswordValid = comparePassword(password, user.password);
 
       if (!isPasswordValid) {
-        return res.status(401).json({ message: "Invalid password" }); // Separated error for clarity
+        return res.status(401).json({ message: "Invalid password" });
       }
 
       const payload = {

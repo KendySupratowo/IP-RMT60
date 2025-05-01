@@ -28,8 +28,9 @@ export default function HomePage() {
         // Simpan semua device ke state
         setDevices(response.data);
 
-        // Filter device unggulan (sebagai contoh, ambil 4 device pertama)
-        setFeaturedDevices(response.data.slice(0, 4));
+        // Filter device unggulan
+        const shuffledDevices = response.data.sort(() => 0.5 - Math.random());
+        setFeaturedDevices(shuffledDevices.slice(0, 4));
 
         setLoading(false);
       } catch (err) {
