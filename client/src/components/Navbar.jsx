@@ -36,13 +36,13 @@ export default function Navbar() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/favorites">
-                My Favorite
+              <Link className="nav-link" to="/landing-page">
+                Ask My Phones AI
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/landing-page">
-                Ask My Phones AI
+              <Link className="nav-link" to="/favorites">
+                My Favorite
               </Link>
             </li>
           </ul>
