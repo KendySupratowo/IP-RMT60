@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchFavorites, clearError } from "../store/favoriteSlice";
 import Navbar from "../components/Navbar";
 import Card from "../components/card";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -8,46 +9,28 @@ import ErrorMessage from "../components/ErrorMessage";
 import HomeStyles from "../components/HomeStyles";
 
 export default function FavoritePage() {
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { favorites, loading, error } = useSelector((state) => state.favorites);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Cek apakah user sudah login
     const token = localStorage.getItem("access_token");
     if (!token) {
       navigate("/login");
       return;
     }
+    dispatch(fetchFavorites());
+  }, [dispatch, navigate]);
 
-    // Ambil daftar HP favorit user
-    const fetchFavorites = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("http://localhost:3000/favorites", {
-          headers: {
-            access_token: token,
-          },
-        });
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, dispatch]);
 
-        // Pastikan response.data adalah array
-        const favoriteDevices = Array.isArray(response.data)
-          ? response.data
-          : [];
-        setFavorites(favoriteDevices);
-        setLoading(false);
-      } catch (err) {
-        setError(err.response?.data?.message || "Gagal mengambil data favorit");
-        setLoading(false);
-        console.error("Error fetching favorites:", err);
-      }
-    };
-
-    fetchFavorites();
-  }, [navigate]);
-
-  // Handler untuk klik tombol View Details
   const handleCardClick = (phoneId) => {
     if (phoneId) {
       navigate(`/devices/${phoneId}`);
@@ -58,13 +41,9 @@ export default function FavoritePage() {
     <>
       <HomeStyles />
       <Navbar />
-
       <div className="container mt-5">
         <h1 className="mb-4">Daftar HP Favorit</h1>
-
-        {/* Menampilkan error jika ada */}
         {error && <ErrorMessage message={error} />}
-
         {loading ? (
           <LoadingSpinner />
         ) : favorites.length === 0 ? (

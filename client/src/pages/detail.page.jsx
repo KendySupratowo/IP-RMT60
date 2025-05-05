@@ -1,64 +1,43 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleFavorite } from "../store/favoriteSlice";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 
 export default function DetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { favorites, loading: favoriteLoading } = useSelector(
+    (state) => state.favorites
+  );
   const [device, setDevice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isFavorite = favorites.some((fav) => fav.id === Number(id));
 
   useEffect(() => {
     const fetchDeviceDetail = async () => {
       try {
         setLoading(true);
-
-        // Cek apakah user terotentikasi
         const token = localStorage.getItem("access_token");
         if (token) {
           setIsAuthenticated(true);
-
-          // Ambil data device
           const response = await axios.get(
             `http://localhost:3000/public/devices/${id}`,
             {
-              headers: {
-                access_token: token,
-              },
+              headers: { access_token: token },
             }
           );
           setDevice(response.data);
-
-          // Cek apakah device sudah di favorit
-          try {
-            const favoriteResponse = await axios.get(
-              "http://localhost:3000/favorites",
-              {
-                headers: {
-                  access_token: token,
-                },
-              }
-            );
-
-            const isInFavorites = favoriteResponse.data.some(
-              (favorite) => favorite.id === Number(id)
-            );
-            setIsFavorite(isInFavorites);
-          } catch (error) {
-            console.error("Error checking favorites:", error);
-          }
         } else {
-          // Jika tidak terotentikasi, ambil data publik
           const response = await axios.get(
             `http://localhost:3000/public/devices/${id}`
           );
           setDevice(response.data);
         }
-
         setLoading(false);
       } catch (err) {
         setError("Gagal mengambil data detail HP");
@@ -74,43 +53,14 @@ export default function DetailPage() {
     navigate(-1);
   };
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = () => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-
-    try {
-      const token = localStorage.getItem("access_token");
-
-      if (isFavorite) {
-        // Hapus dari favorit
-        await axios.delete(`http://localhost:3000/favorites/${id}`, {
-          headers: {
-            access_token: token,
-          },
-        });
-        setIsFavorite(false);
-      } else {
-        // Tambahkan ke favorit
-        await axios.post(
-          `http://localhost:3000/favorites/${id}`,
-          {},
-          {
-            headers: {
-              access_token: token,
-            },
-          }
-        );
-        setIsFavorite(true);
-      }
-    } catch (error) {
-      console.error("Error toggling favorite:", error);
-      setError("Gagal memperbarui status favorit");
-    }
+    dispatch(toggleFavorite(id));
   };
 
-  // Format price as Indonesian Rupiah
   const formatPrice = (price) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -266,12 +216,9 @@ export default function DetailPage() {
         }}
       />
 
-      {/* Navbar */}
       <Navbar />
 
-      {/* Content */}
       <div className="container mt-4">
-        {/* Menampilkan error jika ada */}
         {error && (
           <div className="error-message">
             <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -279,8 +226,7 @@ export default function DetailPage() {
           </div>
         )}
 
-        {/* Loading spinner */}
-        {loading ? (
+        {loading || favoriteLoading ? (
           <div className="loading-spinner">
             <div className="spinner-border text-info" role="status">
               <span className="visually-hidden">Loading...</span>
@@ -289,7 +235,6 @@ export default function DetailPage() {
         ) : (
           device && (
             <div className="row">
-              {/* Image and basic info */}
               <div className="col-md-5">
                 <div className="detail-image-container">
                   <img
@@ -331,7 +276,6 @@ export default function DetailPage() {
                 </div>
               </div>
 
-              {/* Specifications */}
               <div className="col-md-7">
                 <h1 className="device-title">{device.device_name}</h1>
                 <p className="device-price">{formatPrice(device.price)}</p>
