@@ -4,10 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -24,7 +21,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
-
     try {
       const response = await axios.post(
         "http://localhost:3000/login",
@@ -32,7 +28,6 @@ export default function LoginPage() {
       );
       localStorage.setItem("access_token", response.data.access_token);
       localStorage.setItem("userId", response.data.id);
-
       Swal.fire({
         title: "Berhasil!",
         text: "Login berhasil",
@@ -40,7 +35,6 @@ export default function LoginPage() {
         timer: 1500,
         showConfirmButton: false,
       });
-
       setTimeout(() => {
         navigate("/");
       }, 1500);
@@ -49,7 +43,6 @@ export default function LoginPage() {
         setError(
           err.response.data.message || "Login failed. Please try again."
         );
-
         Swal.fire({
           title: "Gagal!",
           text: err.response.data.message || "Login gagal. Silakan coba lagi.",
@@ -58,7 +51,6 @@ export default function LoginPage() {
         });
       } else {
         setError("Network error. Please check your connection.");
-
         Swal.fire({
           title: "Error!",
           text: "Network error. Silakan periksa koneksi internet Anda.",
@@ -72,12 +64,10 @@ export default function LoginPage() {
   // Login dengan Google
   async function handleCredentialResponse(response) {
     try {
-      console.log("Encoded JWT ID token: " + response.credential);
       const { data } = await axios.post("http://localhost:3000/login/google", {
         googleToken: response.credential,
       });
       localStorage.setItem("access_token", data.access_token);
-
       Swal.fire({
         title: "Berhasil!",
         text: "Login Google berhasil!",
@@ -85,7 +75,6 @@ export default function LoginPage() {
         timer: 1500,
         showConfirmButton: false,
       });
-
       setTimeout(() => {
         navigate("/");
       }, 1500);
@@ -93,7 +82,6 @@ export default function LoginPage() {
       setError(
         err.response?.data.message || "Login Google gagal. Silakan coba lagi."
       );
-
       Swal.fire({
         title: "Gagal!",
         text:
@@ -119,36 +107,28 @@ export default function LoginPage() {
     });
     window.google.accounts.id.renderButton(
       document.getElementById("buttonDiv"),
-      { theme: "outline", size: "large" } // customization attributes
+      { theme: "outline", size: "large" }
     );
-    window.google.accounts.id.prompt(); // also display the One Tap dialog
-  }, []); // Empty dependency array to run only once on mount
+    window.google.accounts.id.prompt();
+  }, []);
 
   // Cek URL untuk parameter code dari GitHub
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const code = queryParams.get("code");
-
-    if (code) {
-      // Kode otorisasi GitHub diterima, lakukan login
+    // Cegah eksekusi ganda dengan flag di sessionStorage
+    if (code && !sessionStorage.getItem("github_login_processing")) {
+      sessionStorage.setItem("github_login_processing", "true");
       const githubLogin = async () => {
         try {
-          // Pindahkan navigasi di awal untuk menghapus parameter code dari URL
-          // sehingga tidak terjadi loop atau double-processing
-          navigate("/login", { replace: true, state: { processing: true } });
-
-          // Hapus error dan success message yang mungkin ada sebelumnya
           setError("");
           setSuccess("");
-
           const response = await axios.post(
             "http://localhost:3000/login/github",
             { code }
           );
-
           localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("userId", response.data.id);
-
           Swal.fire({
             title: "Berhasil!",
             text: "Login GitHub berhasil!",
@@ -156,12 +136,11 @@ export default function LoginPage() {
             timer: 1500,
             showConfirmButton: false,
           }).then(() => {
-            // Navigasi ke home setelah alert selesai
+            sessionStorage.removeItem("github_login_processing");
             navigate("/");
           });
         } catch (err) {
-          console.error("GitHub login error:", err);
-
+          sessionStorage.removeItem("github_login_processing");
           Swal.fire({
             title: "Gagal!",
             text: "Login GitHub gagal. Silakan coba lagi.",
@@ -170,24 +149,9 @@ export default function LoginPage() {
           });
         }
       };
-
-      // Jalankan fungsi login GitHub hanya jika tidak sedang dalam proses
-      if (!location.state?.processing) {
-        githubLogin();
-      }
+      githubLogin();
     }
-  }, [location.search, navigate, location.state]);
-
-  // Tambahkan useEffect terpisah untuk menangani state
-  useEffect(() => {
-    // Reset state processing jika ada
-    if (location.state?.processing) {
-      const newState = { ...location.state };
-      delete newState.processing;
-      navigate("/login", { replace: true, state: newState });
-    }
-  }, [location.state, navigate]);
-
+  }, [location.search, navigate]);
   return (
     <>
       <meta charSet="UTF-8" />
