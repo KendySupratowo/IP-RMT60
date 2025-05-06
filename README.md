@@ -1,100 +1,166 @@
-# IP-RMT60: Dokumentasi API Perangkat Xiaomi
+# Dokumentasi API
 
-Dokumen ini menyediakan detail komprehensif untuk API sisi server platform Perangkat Xiaomi, yang dibangun dengan Express.js, Sequelize, dan PostgreSQL. API ini memfasilitasi autentikasi pengguna, eksplorasi perangkat, dan pengelolaan perangkat favorit.
+## Endpoint Xiaomi Device Store
 
----
+Berikut adalah daftar endpoint yang tersedia:
 
-## Daftar Isi
+- `GET /public/devices`
+- `GET /public/devices/:id`
+- `POST /ai`
 
-1. [Model](#models)
-2. [Hubungan](#relationships)
-3. [Endpoint yang Tersedia](#available-endpoints)
-4. [Endpoint Publik](#public-endpoints)
-5. [Endpoint Terotentikasi](#authenticated-endpoints)
-6. [Penanganan Error Global](#global-error-handling)
+- `POST /register`
+- `POST /login`
+- `POST /login/google`
 
----
+- `GET /devices`
+- `GET /devices/:id`
+- `PUT /users/update`
+- `POST /favorites/:XiaomiDeviceId`
+- `GET /favorites`
+- `DELETE /favorites/:XiaomiDeviceId`
 
-## Model
+&nbsp;
 
-### User
+## 1. GET /public/devices
 
-Merepresentasikan pengguna terdaftar platform.
+Description:
 
-| Field    | Type   | Constraints      |
-| -------- | ------ | ---------------- |
-| username | String | Required         |
-| email    | String | Required, Unique |
-| password | String | Required         |
+- Mendapatkan daftar semua perangkat Xiaomi dengan informasi terbatas
 
-### XiaomiDevice
+Request:
 
-Merepresentasikan perangkat Xiaomi yang tersedia di platform.
+- Query parameters:
 
-| Field        | Type    | Constraints |
-| ------------ | ------- | ----------- |
-| key          | String  | Optional    |
-| device_name  | String  | Optional    |
-| device_image | String  | Optional    |
-| display_size | String  | Optional    |
-| display_res  | String  | Optional    |
-| camera       | String  | Optional    |
-| video        | String  | Optional    |
-| ram          | String  | Optional    |
-| chipset      | String  | Optional    |
-| battery      | String  | Optional    |
-| batteryType  | String  | Optional    |
-| body         | String  | Optional    |
-| os_type      | String  | Optional    |
-| storage      | String  | Optional    |
-| comment      | String  | Optional    |
-| price        | Integer | Optional    |
+```json
+{
+  "search": "string (optional)",
+  "sort": "string (optional, format: field:order, contoh: price:asc)",
+  "minPrice": "integer (optional)",
+  "maxPrice": "integer (optional)"
+}
+```
 
-### Favorite
+_Response (200 - OK)_
 
-Merepresentasikan perangkat Xiaomi favorit pengguna.
+```json
+[
+  {
+    "id": 1,
+    "key": "xiaomi-13-pro",
+    "device_name": "Xiaomi 13 Pro",
+    "device_image": "url_gambar",
+    "price": 12000000
+  }
+]
+```
 
-| Field          | Type    | Constraints |
-| -------------- | ------- | ----------- |
-| UserId         | Integer | Required    |
-| XiaomiDeviceId | Integer | Required    |
+_Response (500 - Internal Server Error)_
 
----
+```json
+{
+  "message": "Internal server error"
+}
+```
 
-## Hubungan
+&nbsp;
 
-- **Many-to-Many**: Model `User` dan `XiaomiDevice` terhubung melalui model `Favorite` menggunakan hubungan many-to-many Sequelize.
+## 2. GET /public/devices/:id
 
----
+Description:
 
-## Endpoint yang Tersedia
+- Mendapatkan detail perangkat Xiaomi berdasarkan ID dengan informasi terbatas
 
-### Endpoint Publik
+Request:
 
-- `POST /register` - Membuat akun pengguna baru
-- `POST /login` - Mengautentikasi pengguna dan mengembalikan token akses
-- `POST /login/google` - Mengautentikasi pengguna melalui Google OAuth
-- `GET /public/devices` - Mengambil semua perangkat Xiaomi
-- `GET /public/devices/:id` - Mengambil perangkat Xiaomi tertentu berdasarkan ID
+- params:
 
-### Endpoint Terotentikasi
+```json
+{
+  "id": "integer (required)"
+}
+```
 
-- `GET /devices` - Mengambil semua perangkat Xiaomi (terotentikasi)
-- `GET /devices/:id` - Mengambil perangkat Xiaomi tertentu berdasarkan ID (terotentikasi)
-- `PUT /users/update` - Memperbarui informasi pengguna
-- `POST /favorites/:XiaomiDeviceId` - Menambahkan perangkat Xiaomi ke favorit pengguna
-- `GET /favorites` - Mengambil perangkat favorit pengguna
-- `DELETE /favorites/:XiaomiDeviceId` - Menghapus perangkat Xiaomi dari favorit pengguna
+_Response (200 - OK)_
 
----
+```json
+{
+  "id": 1,
+  "key": "xiaomi-13-pro",
+  "device_name": "Xiaomi 13 Pro",
+  "device_image": "url_gambar",
+  "price": 12000000
+}
+```
 
-## Endpoint Publik
+_Response (404 - Not Found)_
 
-### 1. POST /register
+```json
+{
+  "message": "Device tidak ditemukan"
+}
+```
 
-**Deskripsi**: Membuat akun pengguna baru.
+_Response (500 - Internal Server Error)_
 
-**Body**:
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 3. POST /ai
+
+Description:
+
+- Mendapatkan informasi menggunakan AI Gemini tentang perangkat Xiaomi
+
+Request:
+
+- body:
+
+```json
+{
+  "prompt": "string (required)"
+}
+```
+
+_Response (200 - OK)_
+
+```json
+{
+  "response": "string"
+}
+```
+
+_Response (400 - Bad Request)_
+
+```json
+{
+  "message": "Prompt diperlukan"
+}
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 4. POST /register
+
+Description:
+
+- Registrasi user baru
+
+Request:
+
+- body:
 
 ```json
 {
@@ -104,7 +170,7 @@ Merepresentasikan perangkat Xiaomi favorit pengguna.
 }
 ```
 
-**Response (201 - Created)**:
+_Response (201 - Created)_
 
 ```json
 {
@@ -114,31 +180,41 @@ Merepresentasikan perangkat Xiaomi favorit pengguna.
 }
 ```
 
-**Response (400 - Bad Request)**:
+_Response (400 - Bad Request)_
 
 ```json
 {
-  "message": "Username tidak boleh null enkah kosong"
+  "message": "Username tidak boleh kosong"
+}
+OR
+{
+  "message": "Email tidak boleh kosong"
+}
+OR
+{
+  "message": "Password tidak boleh kosong"
 }
 ```
 
-_Atau error validasi serupa untuk username, email, atau password._
-
-**Response (400 - Bad Request)**:
+_Response (500 - Internal Server Error)_
 
 ```json
 {
-  "message": "Email must be unique"
+  "message": "Internal server error"
 }
 ```
 
----
+&nbsp;
 
-### 2. POST /login
+## 5. POST /login
 
-**Deskripsi**: Mengautentikasi pengguna dan mengembalikan token akses.
+Description:
 
-**Body**:
+- Login user
+
+Request:
+
+- body:
 
 ```json
 {
@@ -147,499 +223,34 @@ _Atau error validasi serupa untuk username, email, atau password._
 }
 ```
 
-**Response (200 - OK)**:
+_Response (200 - OK)_
 
 ```json
 {
-  "access_token": "string"
-}
-```
-
-**Response (400 - Bad Request)**:
-
-```json
-{
-  "message": "Email tidak boleh null"
-}
-```
-
-_Atau_:
-
-```json
-{
-  "message": "Password tidak boleh null"
-}
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid email/password"
-}
-```
-
----
-
-### 3. POST /login/google
-
-**Deskripsi**: Mengautentikasi pengguna melalui Google OAuth dan mengembalikan token akses.
-
-**Body**:
-
-```json
-{
-  "token": "string"
-}
-```
-
-**Response (200 - OK)**:
-
-```json
-{
-  "access_token": "string"
-}
-```
-
-**Response (400 - Bad Request)**:
-
-```json
-{
-  "message": "Token tidak valid"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 4. GET /public/devices
-
-**Deskripsi**: Mengambil semua perangkat Xiaomi yang tersedia di platform.
-
-**Response (200 - OK)**:
-
-```json
-[
-  {
-    "id": 1,
-    "device_name": "Xiaomi 14",
-    "device_image": "https://example.com/xiaomi14.jpg",
-    "display_size": "6.36 inches",
-    "display_res": "1200 x 2670 pixels",
-    "camera": "50 MP",
-    "video": "8K@24fps",
-    "ram": "8 GB",
-    "chipset": "Snapdragon 8 Gen 3",
-    "battery": "4610 mAh",
-    "batteryType": "Li-Po",
-    "body": "152.8 x 71.5 x 8.2 mm",
-    "os_type": "Android 14",
-    "storage": "256 GB",
-    "comment": "Flagship device",
-    "price": 9999999
-  },
-  ...
-]
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 5. GET /public/devices/:id
-
-**Deskripsi**: Mengambil detail perangkat Xiaomi tertentu berdasarkan ID-nya.
-
-**Parameter**:
-
-- `id` (wajib): ID Perangkat (integer)
-
-**Response (200 - OK)**:
-
-```json
-{
-  "id": 1,
-  "device_name": "Xiaomi 14",
-  "device_image": "https://example.com/xiaomi14.jpg",
-  "display_size": "6.36 inches",
-  "display_res": "1200 x 2670 pixels",
-  "camera": "50 MP",
-  "video": "8K@24fps",
-  "ram": "8 GB",
-  "chipset": "Snapdragon 8 Gen 3",
-  "battery": "4610 mAh",
-  "batteryType": "Li-Po",
-  "body": "152.8 x 71.5 x 8.2 mm",
-  "os_type": "Android 14",
-  "storage": "256 GB",
-  "comment": "Flagship device",
-  "price": 9999999
-}
-```
-
-**Response (404 - Not Found)**:
-
-```json
-{
-  "message": "Device not found"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-## Endpoint Terotentikasi
-
-Semua endpoint di bawah ini memerlukan header `Authorization` dengan token Bearer yang diperoleh dari endpoint `/login` atau `/login/google`.
-
-**Headers**:
-
-```json
-{
-  "Authorization": "Bearer <access_token>"
-}
-```
-
-### 6. GET /devices
-
-**Deskripsi**: Mengambil semua perangkat Xiaomi untuk pengguna terotentikasi.
-
-**Response (200 - OK)**:
-
-```json
-[
-  {
-    "id": 1,
-    "device_name": "Xiaomi 14",
-    "device_image": "https://example.com/xiaomi14.jpg",
-    "display_size": "6.36 inches",
-    "display_res": "1200 x 2670 pixels",
-    "camera": "50 MP",
-    "video": "8K@24fps",
-    "ram": "8 GB",
-    "chipset": "Snapdragon 8 Gen 3",
-    "battery": "4610 mAh",
-    "batteryType": "Li-Po",
-    "body": "152.8 x 71.5 x 8.2 mm",
-    "os_type": "Android 14",
-    "storage": "256 GB",
-    "comment": "Flagship device",
-    "price": 9999999
-  },
-  ...
-]
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 7. GET /devices/:id
-
-**Deskripsi**: Mengambil detail perangkat Xiaomi tertentu berdasarkan ID-nya untuk pengguna terotentikasi.
-
-**Parameter**:
-
-- `id` (wajib): ID Perangkat (integer)
-
-**Response (200 - OK)**:
-
-```json
-{
-  "id": 1,
-  "device_name": "Xiaomi 14",
-  "device_image": "https://example.com/xiaomi14.jpg",
-  "display_size": "6.36 inches",
-  "display_res": "1200 x 2670 pixels",
-  "camera": "50 MP",
-  "video": "8K@24fps",
-  "ram": "8 GB",
-  "chipset": "Snapdragon 8 Gen 3",
-  "battery": "4610 mAh",
-  "batteryType": "Li-Po",
-  "body": "152.8 x 71.5 x 8.2 mm",
-  "os_type": "Android 14",
-  "storage": "256 GB",
-  "comment": "Flagship device",
-  "price": 9999999
-}
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (404 - Not Found)**:
-
-```json
-{
-  "message": "Device not found"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 8. PUT /users/update
-
-**Deskripsi**: Memperbarui informasi pengguna terotentikasi.
-
-**Body**:
-
-```json
-{
-  "username": "string",
-  "email": "string"
-}
-```
-
-**Response (200 - OK)**:
-
-```json
-{
+  "access_token": "string",
   "id": "integer",
   "username": "string",
   "email": "string"
 }
 ```
 
-**Response (400 - Bad Request)**:
+_Response (400 - Bad Request)_
 
 ```json
 {
-  "message": "Username tidak boleh null"
+  "message": "Email and password are required"
 }
 ```
 
-_Atau_:
+_Response (401 - Unauthorized)_
 
 ```json
 {
-  "message": "Email tidak boleh null"
+  "message": "Invalid password"
 }
 ```
 
-_Atau_:
-
-```json
-{
-  "message": "Email must be unique"
-}
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 9. POST /favorites/:XiaomiDeviceId
-
-**Deskripsi**: Menambahkan perangkat Xiaomi ke favorit pengguna terotentikasi.
-
-**Parameter**:
-
-- `XiaomiDeviceId` (wajib): ID Perangkat (integer)
-
-**Response (201 - Created)**:
-
-```json
-{
-  "id": "integer",
-  "UserId": "integer",
-  "XiaomiDeviceId": "integer"
-}
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (404 - Not Found)**:
-
-```json
-{
-  "message": "Device not found"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 10. GET /favorites
-
-**Deskripsi**: Mengambil perangkat favorit pengguna terotentikasi.
-
-**Response (200 - OK)**:
-
-```json
-[
-  {
-    "id": 1,
-    "UserId": 1,
-    "XiaomiDeviceId": 1,
-    "XiaomiDevice": {
-      "id": 1,
-      "device_name": "Xiaomi 14",
-      "device_image": "https://example.com/xiaomi14.jpg",
-      "display_size": "6.36 inches",
-      "display_res": "1200 x 2670 pixels",
-      "camera": "50 MP",
-      "video": "8K@24fps",
-      "ram": "8 GB",
-      "chipset": "Snapdragon 8 Gen 3",
-      "battery": "4610 mAh",
-      "batteryType": "Li-Po",
-      "body": "152.8 x 71.5 x 8.2 mm",
-      "os_type": "Android 14",
-      "storage": "256 GB",
-      "comment": "Flagship device",
-      "price": 9999999
-    }
-  },
-  ...
-]
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-### 11. DELETE /favorites/:XiaomiDeviceId
-
-**Deskripsi**: Menghapus perangkat Xiaomi dari favorit pengguna terotentikasi.
-
-**Parameter**:
-
-- `XiaomiDeviceId` (wajib): ID Perangkat (integer)
-
-**Response (200 - OK)**:
-
-```json
-{
-  "message": "Device removed from favorites"
-}
-```
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (404 - Not Found)**:
-
-```json
-{
-  "message": "Favorite not found"
-}
-```
-
-**Response (500 - Internal Server Error)**:
-
-```json
-{
-  "message": "Internal server error"
-}
-```
-
----
-
-## Penanganan Error Global
-
-**Response (401 - Unauthorized)**:
-
-```json
-{
-  "message": "Invalid token"
-}
-```
-
-**Response (404 - Not Found)**:
+_Response (404 - Not Found)_
 
 ```json
 {
@@ -647,23 +258,410 @@ _Atau_:
 }
 ```
 
-_Atau_:
+_Response (500 - Internal Server Error)_
 
 ```json
 {
-  "message": "Device not found"
+  "message": "Internal server error"
 }
 ```
 
-_Atau_:
+&nbsp;
+
+## 6. POST /login/google
+
+Description:
+
+- Login dengan Google
+
+Request:
+
+- body:
 
 ```json
 {
-  "message": "Favorite not found"
+  "googleToken": "string"
 }
 ```
 
-**Response (500 - Internal Server Error)**:
+_Response (200 - OK)_
+
+```json
+{
+  "access_token": "string",
+  "id": "integer",
+  "username": "string",
+  "email": "string"
+}
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 7. GET /devices
+
+Description:
+
+- Mendapatkan daftar semua perangkat Xiaomi dengan informasi lengkap
+
+Request:
+
+- headers:
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+_Response (200 - OK)_
+
+```json
+[
+  {
+    "id": 1,
+    "key": "xiaomi-13-pro",
+    "device_name": "Xiaomi 13 Pro",
+    "device_image": "url_gambar",
+    "display_size": "6.73 inci",
+    "display_res": "1440 x 3200 pixel",
+    "camera": "50MP + 50MP + 50MP",
+    "video": "8K@24fps",
+    "ram": "12GB",
+    "chipset": "Snapdragon 8 Gen 2",
+    "battery": "4820 mAh",
+    "batteryType": "Li-Po",
+    "body": "Ceramic/Glass",
+    "os_type": "Android 13, MIUI 14",
+    "storage": "256GB/512GB",
+    "comment": "Flagship 2023",
+    "price": 12000000
+  }
+]
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 8. GET /devices/:id
+
+Description:
+
+- Mendapatkan detail perangkat Xiaomi berdasarkan ID dengan informasi lengkap
+
+Request:
+
+- headers:
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+- params:
+
+```json
+{
+  "id": "integer (required)"
+}
+```
+
+_Response (200 - OK)_
+
+```json
+{
+  "id": 1,
+  "key": "xiaomi-13-pro",
+  "device_name": "Xiaomi 13 Pro",
+  "device_image": "url_gambar",
+  "display_size": "6.73 inci",
+  "display_res": "1440 x 3200 pixel",
+  "camera": "50MP + 50MP + 50MP",
+  "video": "8K@24fps",
+  "ram": "12GB",
+  "chipset": "Snapdragon 8 Gen 2",
+  "battery": "4820 mAh",
+  "batteryType": "Li-Po",
+  "body": "Ceramic/Glass",
+  "os_type": "Android 13, MIUI 14",
+  "storage": "256GB/512GB",
+  "comment": "Flagship 2023",
+  "price": 12000000
+}
+```
+
+_Response (404 - Not Found)_
+
+```json
+{
+  "message": "Device tidak ditemukan"
+}
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 9. PUT /users/update
+
+Description:
+
+- Memperbarui data profil user
+
+Request:
+
+- headers:
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+- body:
+
+```json
+{
+  "username": "string (optional)",
+  "email": "string (optional)"
+}
+```
+
+_Response (200 - OK)_
+
+```json
+{
+  "message": "User berhasil diupdate",
+  "user": {
+    "id": "integer",
+    "username": "string",
+    "email": "string"
+  }
+}
+```
+
+_Response (400 - Bad Request)_
+
+```json
+{
+  "message": "Tidak ada data yang diupdate"
+}
+```
+
+_Response (404 - Not Found)_
+
+```json
+{
+  "message": "User tidak ditemukan"
+}
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 10. POST /favorites/:XiaomiDeviceId
+
+Description:
+
+- Menambahkan device ke daftar favorit
+
+Request:
+
+- headers:
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+- params:
+
+```json
+{
+  "XiaomiDeviceId": "integer (required)"
+}
+```
+
+_Response (201 - Created)_
+
+```json
+{
+  "message": "Device berhasil ditambahkan ke favorit"
+}
+```
+
+_Response (400 - Bad Request)_
+
+```json
+{
+  "message": "Device sudah ada di daftar favorit Anda"
+}
+```
+
+_Response (404 - Not Found)_
+
+```json
+{
+  "message": "Device tidak ditemukan"
+}
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 11. GET /favorites
+
+Description:
+
+- Mendapatkan daftar device favorit user
+
+Request:
+
+- headers:
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+_Response (200 - OK)_
+
+```json
+[
+  {
+    "id": 1,
+    "key": "xiaomi-13-pro",
+    "device_name": "Xiaomi 13 Pro",
+    "device_image": "url_gambar",
+    "display_size": "6.73 inci",
+    "display_res": "1440 x 3200 pixel",
+    "camera": "50MP + 50MP + 50MP",
+    "video": "8K@24fps",
+    "ram": "12GB",
+    "chipset": "Snapdragon 8 Gen 2",
+    "battery": "4820 mAh",
+    "batteryType": "Li-Po",
+    "body": "Ceramic/Glass",
+    "os_type": "Android 13, MIUI 14",
+    "storage": "256GB/512GB",
+    "comment": "Flagship 2023",
+    "price": 12000000
+  }
+]
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## 12. DELETE /favorites/:XiaomiDeviceId
+
+Description:
+
+- Menghapus device dari daftar favorit
+
+Request:
+
+- headers:
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+- params:
+
+```json
+{
+  "XiaomiDeviceId": "integer (required)"
+}
+```
+
+_Response (200 - OK)_
+
+```json
+{
+  "message": "Device berhasil dihapus dari favorit"
+}
+```
+
+_Response (404 - Not Found)_
+
+```json
+{
+  "message": "Device tidak ada di daftar favorit Anda"
+}
+```
+
+_Response (500 - Internal Server Error)_
+
+```json
+{
+  "message": "Internal server error"
+}
+```
+
+&nbsp;
+
+## Global Error
+
+_Response (401 - Unauthorized)_
+
+```json
+{
+  "message": "Invalid token"
+}
+OR
+{
+  "message": "Authentication required"
+}
+```
+
+_Response (500 - Internal Server Error)_
 
 ```json
 {
