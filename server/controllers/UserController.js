@@ -2,6 +2,7 @@ const { User } = require("../models");
 const { comparePassword } = require("../helpers/bcrypt");
 const { createToken } = require("../helpers/jwt");
 const { OAuth2Client } = require("google-auth-library");
+const axios = require("axios"); // Untuk GitHub login
 const client = new OAuth2Client();
 
 class UserController {
@@ -42,6 +43,94 @@ class UserController {
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  static async githubLogin(req, res) {
+    try {
+      const { code } = req.body;
+
+      // Step 1: Tukar kode otorisasi dengan access token
+      const tokenResponse = await axios.post(
+        "https://github.com/login/oauth/access_token",
+        {
+          client_id: process.env.GITHUB_CLIENT_ID,
+          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          code,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const { access_token } = tokenResponse.data;
+
+      // Step 2: Gunakan access token untuk mendapatkan informasi user
+      const userResponse = await axios.get("https://api.github.com/user", {
+        headers: {
+          Authorization: `token ${access_token}`,
+        },
+      });
+
+      const githubUser = userResponse.data;
+
+      // Step 3: Email tidak selalu tersedia di GitHub API, coba ambil email
+      let email;
+      try {
+        const emailsResponse = await axios.get(
+          "https://api.github.com/user/emails",
+          {
+            headers: {
+              Authorization: `token ${access_token}`,
+            },
+          }
+        );
+
+        // Cari email yang primary dan verified
+        const primaryEmail = emailsResponse.data.find(
+          (email) => email.primary && email.verified
+        );
+        email = primaryEmail
+          ? primaryEmail.email
+          : emailsResponse.data[0].email;
+      } catch (error) {
+        // Jika tidak bisa mendapatkan email, gunakan fallback
+        email = `${githubUser.login}@github.com`;
+      }
+
+      // Step 4: Cari user dengan email tersebut atau buat user baru
+      let user = await User.findOne({
+        where: { email },
+      });
+
+      if (!user) {
+        user = await User.create({
+          username: githubUser.name || githubUser.login,
+          email,
+          password: githubUser.id.toString(), // Gunakan id GitHub sebagai password
+        });
+      }
+
+      // Step 5: Buat token JWT
+      const tokenPayload = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      };
+
+      const token = createToken(tokenPayload);
+
+      res.status(200).json({
+        access_token: token,
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      });
+    } catch (error) {
+      console.error("GitHub login error:", error);
+      res.status(500).json({ message: "Gagal login menggunakan GitHub" });
     }
   }
 

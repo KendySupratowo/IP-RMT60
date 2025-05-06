@@ -78,6 +78,7 @@ app.post("/ai", async (req, res) => {
 app.post("/register", UserController.register);
 app.post("/login", UserController.login);
 app.post("/login/google", UserController.googleLogin);
+app.post("/login/github", UserController.githubLogin);
 
 // Middleware authentication untuk semua rute dibawah ini
 app.use(authentication);
