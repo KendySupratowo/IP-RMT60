@@ -1,10 +1,17 @@
 import { useNavigate } from "react-router";
+import { useState } from "react";
 
-export default function WelcomeContent() {
+export default function WelcomeContent({ onAiRequest, loading, error }) {
   const navigate = useNavigate();
+  const [prompt, setPrompt] = useState("");
 
   const handleClick = () => {
-    navigate("/");
+    if (prompt.trim()) {
+      onAiRequest(prompt);
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    }
   };
 
   return (
@@ -28,10 +35,18 @@ export default function WelcomeContent() {
             className="form-control"
             rows="3"
             placeholder="Saya ingin HP gaming dan baterai tahan lama"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            disabled={loading}
           ></textarea>
         </div>
-        <button className="btn btn-primary w-100" onClick={handleClick}>
-          Bantu carikan..
+        {error && <div className="text-danger mb-2">{error}</div>}
+        <button
+          className="btn btn-primary w-100"
+          onClick={handleClick}
+          disabled={loading || !prompt.trim()}
+        >
+          {loading ? "Memproses..." : "Bantu carikan.."}
         </button>
       </div>
     </div>

@@ -9,32 +9,41 @@ import HomeStyles from "../components/HomeStyles";
 import WelcomeContent from "../components/WelcomeContent";
 
 export default function HomePage() {
-  // State untuk menyimpan data HP
   const [devices, setDevices] = useState([]);
   const [featuredDevices, setFeaturedDevices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fungsi untuk mengambil data dari API
   useEffect(() => {
     const fetchDevices = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await axios.get(
-          "http://localhost:3000/public/devices"
+          "http://localhost:3000/public/devices",
+          {
+            timeout: 5000,
+          }
         );
 
-        // Simpan semua device ke state
         setDevices(response.data);
 
-        // Filter device unggulan
         const shuffledDevices = response.data.sort(() => 0.5 - Math.random());
         setFeaturedDevices(shuffledDevices.slice(0, 4));
 
         setLoading(false);
       } catch (err) {
-        setError("Gagal mengambil data dari server");
+        if (err.code === "ERR_NETWORK" || err.code === "ECONNREFUSED") {
+          setError(
+            "Tidak dapat terhubung ke server. Pastikan server berjalan di http://localhost:3000."
+          );
+        } else {
+          setError(
+            "Gagal mengambil data dari server: " +
+              (err.message || "Unknown error")
+          );
+        }
         setLoading(false);
         console.error("Error fetching devices:", err);
       }
@@ -43,9 +52,7 @@ export default function HomePage() {
     fetchDevices();
   }, []);
 
-  // Handler untuk klik tombol View Details
   const handleCardClick = (phoneId) => {
-    // Navigasi ke halaman detail dengan parameter ID HP
     navigate(`/devices/${phoneId}`);
   };
 
@@ -54,17 +61,14 @@ export default function HomePage() {
       <HomeStyles />
       <Navbar />
 
-      {/* Menampilkan error jika ada */}
       {error && <ErrorMessage message={error} />}
 
-      {/* HP Unggulan */}
       <FeaturedDevices
         devices={featuredDevices}
         loading={loading}
         onCardClick={handleCardClick}
       />
 
-      {/* Daftar Semua HP */}
       <AllDevices
         devices={devices}
         loading={loading}
