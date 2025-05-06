@@ -1,25 +1,25 @@
-# IP-RMT60: Xiaomi Devices API Documentation
+# IP-RMT60: Dokumentasi API Perangkat Xiaomi
 
-This document provides comprehensive details for the server-side API of the Xiaomi Devices platform, built with Express.js, Sequelize, and PostgreSQL. The API facilitates user authentication, device exploration, and management of favorite devices.
-
----
-
-## Table of Contents
-
-1. [Models](#models)
-2. [Relationships](#relationships)
-3. [Available Endpoints](#available-endpoints)
-4. [Public Endpoints](#public-endpoints)
-5. [Authenticated Endpoints](#authenticated-endpoints)
-6. [Global Error Handling](#global-error-handling)
+Dokumen ini menyediakan detail komprehensif untuk API sisi server platform Perangkat Xiaomi, yang dibangun dengan Express.js, Sequelize, dan PostgreSQL. API ini memfasilitasi autentikasi pengguna, eksplorasi perangkat, dan pengelolaan perangkat favorit.
 
 ---
 
-## Models
+## Daftar Isi
+
+1. [Model](#models)
+2. [Hubungan](#relationships)
+3. [Endpoint yang Tersedia](#available-endpoints)
+4. [Endpoint Publik](#public-endpoints)
+5. [Endpoint Terotentikasi](#authenticated-endpoints)
+6. [Penanganan Error Global](#global-error-handling)
+
+---
+
+## Model
 
 ### User
 
-Represents a registered user of the platform.
+Merepresentasikan pengguna terdaftar platform.
 
 | Field    | Type   | Constraints      |
 | -------- | ------ | ---------------- |
@@ -29,7 +29,7 @@ Represents a registered user of the platform.
 
 ### XiaomiDevice
 
-Represents a Xiaomi device available on the platform.
+Merepresentasikan perangkat Xiaomi yang tersedia di platform.
 
 | Field        | Type    | Constraints |
 | ------------ | ------- | ----------- |
@@ -52,7 +52,7 @@ Represents a Xiaomi device available on the platform.
 
 ### Favorite
 
-Represents a user’s favorite Xiaomi device.
+Merepresentasikan perangkat Xiaomi favorit pengguna.
 
 | Field          | Type    | Constraints |
 | -------------- | ------- | ----------- |
@@ -61,38 +61,38 @@ Represents a user’s favorite Xiaomi device.
 
 ---
 
-## Relationships
+## Hubungan
 
-- **Many-to-Many**: The `User` and `XiaomiDevice` models are connected through the `Favorite` model using Sequelize's many-to-many relationship.
-
----
-
-## Available Endpoints
-
-### Public Endpoints
-
-- `POST /register` - Create a new user account
-- `POST /login` - Authenticate a user and return an access token
-- `POST /login/google` - Authenticate a user via Google OAuth
-- `GET /public/devices` - Retrieve all Xiaomi devices
-- `GET /public/devices/:id` - Retrieve a specific Xiaomi device by ID
-
-### Authenticated Endpoints
-
-- `GET /devices` - Retrieve all Xiaomi devices (authenticated)
-- `GET /devices/:id` - Retrieve a specific Xiaomi device by ID (authenticated)
-- `PUT /users/update` - Update user information
-- `POST /favorites/:XiaomiDeviceId` - Add a Xiaomi device to user’s favorites
-- `GET /favorites` - Retrieve user’s favorite devices
-- `DELETE /favorites/:XiaomiDeviceId` - Remove a Xiaomi device from user’s favorites
+- **Many-to-Many**: Model `User` dan `XiaomiDevice` terhubung melalui model `Favorite` menggunakan hubungan many-to-many Sequelize.
 
 ---
 
-## Public Endpoints
+## Endpoint yang Tersedia
+
+### Endpoint Publik
+
+- `POST /register` - Membuat akun pengguna baru
+- `POST /login` - Mengautentikasi pengguna dan mengembalikan token akses
+- `POST /login/google` - Mengautentikasi pengguna melalui Google OAuth
+- `GET /public/devices` - Mengambil semua perangkat Xiaomi
+- `GET /public/devices/:id` - Mengambil perangkat Xiaomi tertentu berdasarkan ID
+
+### Endpoint Terotentikasi
+
+- `GET /devices` - Mengambil semua perangkat Xiaomi (terotentikasi)
+- `GET /devices/:id` - Mengambil perangkat Xiaomi tertentu berdasarkan ID (terotentikasi)
+- `PUT /users/update` - Memperbarui informasi pengguna
+- `POST /favorites/:XiaomiDeviceId` - Menambahkan perangkat Xiaomi ke favorit pengguna
+- `GET /favorites` - Mengambil perangkat favorit pengguna
+- `DELETE /favorites/:XiaomiDeviceId` - Menghapus perangkat Xiaomi dari favorit pengguna
+
+---
+
+## Endpoint Publik
 
 ### 1. POST /register
 
-**Description**: Creates a new user account.
+**Deskripsi**: Membuat akun pengguna baru.
 
 **Body**:
 
@@ -122,7 +122,7 @@ Represents a user’s favorite Xiaomi device.
 }
 ```
 
-_Or similar validation errors for username, email, or password._
+_Atau error validasi serupa untuk username, email, atau password._
 
 **Response (400 - Bad Request)**:
 
@@ -136,7 +136,7 @@ _Or similar validation errors for username, email, or password._
 
 ### 2. POST /login
 
-**Description**: Authenticates a user and returns an access token.
+**Deskripsi**: Mengautentikasi pengguna dan mengembalikan token akses.
 
 **Body**:
 
@@ -163,7 +163,7 @@ _Or similar validation errors for username, email, or password._
 }
 ```
 
-_Or_:
+_Atau_:
 
 ```json
 {
@@ -183,7 +183,7 @@ _Or_:
 
 ### 3. POST /login/google
 
-**Description**: Authenticates a user via Google OAuth and returns an access token.
+**Deskripsi**: Mengautentikasi pengguna melalui Google OAuth dan mengembalikan token akses.
 
 **Body**:
 
@@ -221,7 +221,7 @@ _Or_:
 
 ### 4. GET /public/devices
 
-**Description**: Retrieves all Xiaomi devices available on the platform.
+**Deskripsi**: Mengambil semua perangkat Xiaomi yang tersedia di platform.
 
 **Response (200 - OK)**:
 
@@ -236,9 +236,7 @@ _Or_:
     "camera": "50 MP",
     "video": "8K@24fps",
     "ram": "8 GB",
-    "chip
-
-set": "Snapdragon 8 Gen 3",
+    "chipset": "Snapdragon 8 Gen 3",
     "battery": "4610 mAh",
     "batteryType": "Li-Po",
     "body": "152.8 x 71.5 x 8.2 mm",
@@ -263,11 +261,11 @@ set": "Snapdragon 8 Gen 3",
 
 ### 5. GET /public/devices/:id
 
-**Description**: Retrieves details of a specific Xiaomi device by its ID.
+**Deskripsi**: Mengambil detail perangkat Xiaomi tertentu berdasarkan ID-nya.
 
-**Parameters**:
+**Parameter**:
 
-- `id` (required): Device ID (integer)
+- `id` (wajib): ID Perangkat (integer)
 
 **Response (200 - OK)**:
 
@@ -310,9 +308,9 @@ set": "Snapdragon 8 Gen 3",
 
 ---
 
-## Authenticated Endpoints
+## Endpoint Terotentikasi
 
-All endpoints below require an `Authorization` header with a Bearer token obtained from the `/login` or `/login/google` endpoint.
+Semua endpoint di bawah ini memerlukan header `Authorization` dengan token Bearer yang diperoleh dari endpoint `/login` atau `/login/google`.
 
 **Headers**:
 
@@ -324,7 +322,7 @@ All endpoints below require an `Authorization` header with a Bearer token obtain
 
 ### 6. GET /devices
 
-**Description**: Retrieves all Xiaomi devices for authenticated users.
+**Deskripsi**: Mengambil semua perangkat Xiaomi untuk pengguna terotentikasi.
 
 **Response (200 - OK)**:
 
@@ -372,11 +370,11 @@ All endpoints below require an `Authorization` header with a Bearer token obtain
 
 ### 7. GET /devices/:id
 
-**Description**: Retrieves details of a specific Xiaomi device by its ID for authenticated users.
+**Deskripsi**: Mengambil detail perangkat Xiaomi tertentu berdasarkan ID-nya untuk pengguna terotentikasi.
 
-**Parameters**:
+**Parameter**:
 
-- `id` (required): Device ID (integer)
+- `id` (wajib): ID Perangkat (integer)
 
 **Response (200 - OK)**:
 
@@ -429,7 +427,7 @@ All endpoints below require an `Authorization` header with a Bearer token obtain
 
 ### 8. PUT /users/update
 
-**Description**: Updates the authenticated user’s information.
+**Deskripsi**: Memperbarui informasi pengguna terotentikasi.
 
 **Body**:
 
@@ -458,7 +456,7 @@ All endpoints below require an `Authorization` header with a Bearer token obtain
 }
 ```
 
-_Or_:
+_Atau_:
 
 ```json
 {
@@ -466,7 +464,7 @@ _Or_:
 }
 ```
 
-_Or_:
+_Atau_:
 
 ```json
 {
@@ -494,11 +492,11 @@ _Or_:
 
 ### 9. POST /favorites/:XiaomiDeviceId
 
-**Description**: Adds a Xiaomi device to the authenticated user’s favorites.
+**Deskripsi**: Menambahkan perangkat Xiaomi ke favorit pengguna terotentikasi.
 
-**Parameters**:
+**Parameter**:
 
-- `XiaomiDeviceId` (required): Device ID (integer)
+- `XiaomiDeviceId` (wajib): ID Perangkat (integer)
 
 **Response (201 - Created)**:
 
@@ -538,7 +536,7 @@ _Or_:
 
 ### 10. GET /favorites
 
-**Description**: Retrieves the authenticated user’s favorite devices.
+**Deskripsi**: Mengambil perangkat favorit pengguna terotentikasi.
 
 **Response (200 - OK)**:
 
@@ -591,11 +589,11 @@ _Or_:
 
 ### 11. DELETE /favorites/:XiaomiDeviceId
 
-**Description**: Removes a Xiaomi device from the authenticated user’s favorites.
+**Deskripsi**: Menghapus perangkat Xiaomi dari favorit pengguna terotentikasi.
 
-**Parameters**:
+**Parameter**:
 
-- `XiaomiDeviceId` (required): Device ID (integer)
+- `XiaomiDeviceId` (wajib): ID Perangkat (integer)
 
 **Response (200 - OK)**:
 
@@ -631,7 +629,7 @@ _Or_:
 
 ---
 
-## Global Error Handling
+## Penanganan Error Global
 
 **Response (401 - Unauthorized)**:
 
@@ -649,7 +647,7 @@ _Or_:
 }
 ```
 
-_Or_:
+_Atau_:
 
 ```json
 {
@@ -657,7 +655,7 @@ _Or_:
 }
 ```
 
-_Or_:
+_Atau_:
 
 ```json
 {
@@ -672,7 +670,3 @@ _Or_:
   "message": "Internal server error"
 }
 ```
-
----
-
-This API documentation provides clear guidance for developers interacting with the Xiaomi Devices platform. For further details, refer to the source code or contact the development team.
