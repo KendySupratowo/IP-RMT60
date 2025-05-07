@@ -140,6 +140,7 @@ export default function LoginPage() {
             navigate("/");
           });
         } catch (err) {
+          console.log(err);
           sessionStorage.removeItem("github_login_processing");
           Swal.fire({
             title: "Gagal!",

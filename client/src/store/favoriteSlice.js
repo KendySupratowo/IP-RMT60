@@ -34,14 +34,11 @@ export const toggleFavorite = createAsyncThunk(
       );
 
       if (isFavorite) {
-        // Kirim permintaan DELETE ke API untuk menghapus favorit
         await axios.delete(`http://localhost:3000/favorites/${id}`, {
           headers: { access_token: token },
         });
-        // Kembalikan ID yang dihapus untuk memperbarui state
         return { id: Number(id), action: "remove" };
       } else {
-        // Tambahkan ke favorit
         await axios.post(
           `http://localhost:3000/favorites/${id}`,
           {},
@@ -98,12 +95,10 @@ const favoriteSlice = createSlice({
       .addCase(toggleFavorite.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.action === "remove") {
-          // Hapus item dari state berdasarkan ID
           state.favorites = state.favorites.filter(
             (fav) => fav.id !== action.payload.id
           );
         } else {
-          // Tambahkan item baru ke state
           state.favorites.push(action.payload.device);
         }
       })
